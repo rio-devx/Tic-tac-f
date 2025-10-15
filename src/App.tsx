@@ -212,7 +212,7 @@ function App() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-4">
+    <div className="min-h-screen flex items-center overflow-hidden justify-center p-4">
       <div className="w-full max-w-4xl">
         <header className="text-center mb-8">
           <h1 className="text-3xl font-bold mb-4">
@@ -238,10 +238,17 @@ function App() {
               Debug
             </button> */}
             <span
-              className={`inline-flex items-center rounded-full px-3 py-1 text-xs font-medium ${
-                isConnected ? 'bg-green-500/15 text-green-500 border border-green-500/30' : 'bg-red-500/15 text-red-500 border border-red-500/30'
+              className={`inline-flex w-20 h-12 items-center gap-2 rounded-full px-3 py-1 text-xs font-medium border backdrop-blur ${
+                isConnected
+                  ? 'bg-green-500/10 text-green-400 border-green-500/30 shadow-[0_0_20px_rgba(34,197,94,0.15)]'
+                  : 'bg-red-500/10 text-red-400 border-red-500/30'
               }`}
+              aria-live="polite"
             >
+              <span
+                className={`rounded-full bg-current ${isConnected ? 'motion-safe:animate-pulse' : ''}`}
+                aria-hidden="true"
+              />
               {isConnected ? 'Connected' : 'Disconnected'}
             </span>
           </nav>

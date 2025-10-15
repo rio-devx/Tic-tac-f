@@ -100,16 +100,16 @@ export const GameBoard: React.FC<GameBoardProps> = ({
         onClick={() => handleCellClick(index)}
         disabled={!canClick}
         className={`
-          w-20 h-20 text-2xl font-bold rounded-lg border-2 transition-all duration-300 transform
+          w-14 h-14 sm:w-20 sm:h-20 md:w-24 md:h-24 text-xl sm:text-2xl md:text-3xl font-bold rounded-lg border-2 transition-all duration-300 transform
           ${value === 'X' 
-            ? 'bg-blue-500/20 text-blue-400 border-blue-400/50 scale-105 shadow-lg animate-bounce-in' 
+            ? 'bg-blue-500/20 text-blue-400 border-blue-400/50 scale-105 shadow-lg motion-safe:animate-bounce-in' 
             : value === 'O' 
-            ? 'bg-red-500/20 text-red-400 border-red-400/50 scale-105 shadow-lg animate-bounce-in'
+            ? 'bg-red-500/20 text-red-400 border-red-400/50 scale-105 shadow-lg motion-safe:animate-bounce-in'
             : canClick
-            ? 'bg-muted/50 hover:bg-muted border-border hover:border-primary/50 cursor-pointer hover:scale-105 hover:shadow-md animate-scale-in'
+            ? 'bg-muted/50 hover:bg-muted border-border hover:border-primary/50 cursor-pointer hover:scale-105 hover:shadow-md motion-safe:animate-scale-in'
             : 'bg-muted/30 border-border cursor-not-allowed opacity-50'
           }
-          ${isRecentMove ? 'animate-pulse-glow' : ''}
+          ${isRecentMove ? 'motion-safe:animate-pulse-glow' : ''}
         `}
         title={value ? `${value} at position ${index}` : canClick ? `Click to place your move` : `Position ${index}`}
       >
@@ -157,20 +157,21 @@ export const GameBoard: React.FC<GameBoardProps> = ({
       {/* Move Notification */}
       <MoveNotification moveData={lastMove || undefined} />
       {/* Header */}
-      <div className="flex justify-between items-center">
+      <div className="flex flex-col sm:flex-row gap-3 sm:gap-0 justify-between items-center">
         <Button
           onClick={() => {
             const confirmLeave = window.confirm('Leave the current game and return to the lobby?');
             if (confirmLeave) onLeaveGame();
           }}
           variant="secondary"
+          className="backdrop-blur"
         >
           <ArrowLeft />
           Leave Game
         </Button>
         
         <div className="text-center">
-          <h2 className="text-xl font-bold">Game #{gameState.gameId.slice(-6)}</h2>
+          <h2 className="text-lg sm:text-xl md:text-2xl font-bold">Game #{gameState.gameId.slice(-6)}</h2>
           {gameState.status === 'playing' && currentPlayerInfo && (
             <p className="text-sm text-gray-600">
               {isMyTurn() ? 'Your turn' : `${currentPlayerInfo.username}'s turn`}
@@ -178,21 +179,21 @@ export const GameBoard: React.FC<GameBoardProps> = ({
           )}
         </div>
         
-        <div className="w-24"></div> {/* Spacer for centering */}
+        <div className="w-24 hidden sm:block"></div> {/* Spacer for centering on larger screens */}
       </div>
 
       {/* Players Info */}
-      <div className="flex justify-between items-center bg-muted/50 rounded-lg p-4 animate-slide-up">
+      <div className="flex flex-row sm:flex-row justify-around items-stretch sm:items-center bg-muted/30 border border-border/50 rounded-xl p-3 sm:p-4 gap-3 sm:gap-6 shadow-sm motion-safe:animate-slide-up">
         {gameState.players.map((gamePlayer) => {
           const symbol = getPlayerSymbol(gamePlayer.id);
           const isMe = gamePlayer.username === player.username;
           
           return (
-            <div key={gamePlayer.id} className="text-center animate-fade-in">
+            <div key={gamePlayer.id} className="text-center motion-safe:animate-fade-in">
               <div className={`
-                w-12 h-12 rounded-full flex items-center justify-center text-xl font-bold mb-2 transition-all duration-300
-                ${symbol === 'X' ? 'bg-blue-500/20 text-blue-400' : 'bg-red-500/20 text-red-400'}
-                ${isMe ? 'ring-2 ring-primary animate-pulse-glow' : ''}
+                w-10 h-10 sm:w-12 sm:h-12 rounded-full flex items-center justify-center text-lg sm:text-xl font-bold mb-2 transition-all duration-300
+                ${symbol === 'X' ? 'bg-blue-500/20 text-blue-300 border border-blue-400/30' : 'bg-red-500/20 text-red-300 border border-red-400/30'}
+                ${isMe ? 'ring-2 ring-primary shadow-md motion-safe:animate-pulse-glow' : ''}
               `}>
                 {symbol}
               </div>
@@ -204,33 +205,33 @@ export const GameBoard: React.FC<GameBoardProps> = ({
       </div>
 
       {/* Game Board */}
-      <div className="flex justify-center animate-scale-in">
-        <div className="grid grid-cols-3 gap-2 bg-muted/30 p-4 rounded-xl backdrop-blur-sm border border-border/50">
+      <div className="flex justify-center motion-safe:animate-scale-in">
+        <div className="grid grid-cols-3 gap-2 sm:gap-3 md:gap-4 bg-muted/20 p-3 sm:p-4 md:p-6 rounded-2xl backdrop-blur-sm border border-border/50 shadow-sm">
           {Array.from({ length: 9 }, (_, index) => renderCell(index))}
         </div>
       </div>
 
       {/* Game Status */}
       {gameState.status === 'finished' && (
-        <div className="text-center space-y-4 animate-bounce-in">
-          <div className="bg-yellow-500/10 border border-yellow-500/30 rounded-lg p-4 backdrop-blur-sm">
-            <Trophy className="w-8 h-8 mx-auto mb-2 text-yellow-400 animate-pulse" />
-            <h3 className="text-lg font-bold text-yellow-300">
+        <div className="text-center space-y-4 motion-safe:animate-bounce-in">
+          <div className="bg-yellow-500/10 border border-yellow-500/30 rounded-lg p-4 md:p-6 backdrop-blur-sm">
+            <Trophy className="w-7 h-7 sm:w-8 sm:h-8 mx-auto mb-2 text-yellow-400 motion-safe:animate-pulse" />
+            <h3 className="text-base sm:text-lg font-bold text-yellow-300">
               {getWinnerMessage()}
             </h3>
             {gameState.winner !== 'draw' && mySymbol === gameState.winner && (
-              <p className="text-sm text-yellow-300 mt-1 animate-pulse-glow">
+              <p className="text-sm text-yellow-300 mt-1 motion-safe:animate-pulse-glow">
                 🎉 Congratulations! You won!
               </p>
             )}
           </div>
           
-          <div className="flex gap-4 justify-center animate-slide-up">
+          <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center motion-safe:animate-slide-up">
             <Button onClick={onLeaveGame}>
               <RotateCcw />
               Play Again
             </Button>
-            <Button onClick={onLeaveGame} variant="secondary">
+            <Button onClick={onLeaveGame} variant="secondary" className='w-full bg-amber-200'>
               Back to Lobby
             </Button>
           </div>
@@ -238,9 +239,9 @@ export const GameBoard: React.FC<GameBoardProps> = ({
       )}
 
       {/* Game Info */}
-      <div className="bg-muted/50 rounded-lg p-4 animate-slide-up">
+      <div className="bg-muted/50 rounded-lg p-3 sm:p-4 motion-safe:animate-slide-up">
         <h3 className="font-semibold mb-2 text-foreground">Game Rules:</h3>
-        <ul className="text-sm text-muted-foreground space-y-1">
+        <ul className="text-sm md:text-base text-muted-foreground space-y-1">
           <li>• You are playing as <strong className="text-primary">{mySymbol}</strong></li>
           <li>• Make three in a row to win</li>
           <li>• {isMyTurn() ? 'It\'s your turn!' : 'Wait for your opponent\'s move'}</li>

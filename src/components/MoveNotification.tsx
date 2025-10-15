@@ -31,17 +31,17 @@ export const MoveNotification: React.FC<MoveNotificationProps> = ({ moveData }) 
   }
 
   return (
-    <div className="fixed top-4 right-4 z-50 animate-in fade-in slide-in-from-right-2 duration-300">
+    <div className="fixed top-2 right-2 sm:top-4 sm:right-4 z-50 animate-in fade-in slide-in-from-right-2 duration-300">
       <div className={`
-        px-4 py-3 rounded-lg shadow-lg border-l-4 flex items-center gap-3
+        px-3 py-2 sm:px-4 sm:py-3 rounded-lg shadow-lg border-l-4 flex items-center gap-2 sm:gap-3
         ${notification.symbol === 'X' 
           ? 'bg-blue-100/10 border-blue-500 text-blue-300' 
           : 'bg-red-100/10 border-red-500 text-red-300'
         }
-        backdrop-blur
+        backdrop-blur motion-safe:transition
       `}>
         <div className={`
-          w-8 h-8 rounded-full flex items-center justify-center text-lg font-bold
+          w-7 h-7 sm:w-8 sm:h-8 rounded-full flex items-center justify-center text-base sm:text-lg font-bold
           ${notification.symbol === 'X' 
             ? 'bg-blue-500/20 text-blue-300' 
             : 'bg-red-500/20 text-red-300'
@@ -53,7 +53,7 @@ export const MoveNotification: React.FC<MoveNotificationProps> = ({ moveData }) 
           <p className="font-semibold">
             {notification.playerName} moved!
           </p>
-          <p className="text-sm opacity-75">
+          <p className="text-xs sm:text-sm opacity-75">
             Position {notification.position}
           </p>
         </div>

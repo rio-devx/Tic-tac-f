@@ -94,8 +94,8 @@ export const Lobby: React.FC<LobbyProps> = ({ onJoinGame, isConnected = false })
   return (
     <div className="space-y-6 animate-in fade-in duration-300">
       <div className="text-center">
-        <h2 className="text-2xl font-bold mb-2">🎮 Game Lobby</h2>
-        <p className="text-muted-foreground">
+        <h2 className="text-xl sm:text-2xl font-bold mb-2">🎮 Game Lobby</h2>
+        <p className="text-sm sm:text-base text-muted-foreground">
           Enter your username to start playing Tic-Tac-Toe with players around the world!
         </p>
       </div>
@@ -103,7 +103,7 @@ export const Lobby: React.FC<LobbyProps> = ({ onJoinGame, isConnected = false })
       {queueStatus === 'idle' && (
         <form onSubmit={handleJoinQueue} className="space-y-4">
           <div>
-            <label htmlFor="username" className="block text-sm font-medium text-foreground mb-2">
+            <label htmlFor="username" className="block text-sm font-medium text-foreground mb-4 text-center">
               Username
             </label>
             <Input
@@ -120,11 +120,11 @@ export const Lobby: React.FC<LobbyProps> = ({ onJoinGame, isConnected = false })
           <Button
             type="submit"
             disabled={isJoining || !username.trim() || !isConnected}
-            className="w-full"
+            className="w-full motion-safe:transition-all"
           >
             {isJoining ? (
               <>
-                <Loader className="loading" />
+                <Loader className="loading motion-safe:animate-spin" />
                 Joining Queue...
               </>
             ) : (
@@ -135,13 +135,13 @@ export const Lobby: React.FC<LobbyProps> = ({ onJoinGame, isConnected = false })
             )}
           </Button>
 
-          <div className="flex justify-between items-center text-sm text-muted-foreground">
+          <div className="flex flex-col sm:flex-row gap-2 sm:gap-0 justify-between items-center text-sm text-muted-foreground">
             <span>Want to check your stats first?</span>
             <Button type="button" variant="secondary" onClick={handleViewStats} disabled={!username.trim()}>
               View Stats
             </Button>
           </div>
-          <div className="flex justify-between items-center text-sm text-muted-foreground">
+          <div className="flex flex-col sm:flex-row gap-2 sm:gap-0 justify-between items-center text-sm text-muted-foreground">
             <span>Curious about recent games?</span>
             <Button type="button" variant="secondary" onClick={handleViewHistory} disabled={!username.trim()}>
               View History
@@ -153,9 +153,9 @@ export const Lobby: React.FC<LobbyProps> = ({ onJoinGame, isConnected = false })
       {queueStatus === 'waiting' && (
         <div className="text-center space-y-4">
           <div className="flex items-center justify-center">
-            <Loader className="loading" />
+            <Loader className="loading motion-safe:animate-spin" />
           </div>
-          <p className="text-lg font-semibold text-foreground">{queueMessage}</p>
+          <p className="text-base sm:text-lg font-semibold text-foreground">{queueMessage}</p>
           <Button onClick={handleLeaveQueue} variant="secondary">
             Cancel
           </Button>
@@ -165,11 +165,11 @@ export const Lobby: React.FC<LobbyProps> = ({ onJoinGame, isConnected = false })
       {queueStatus === 'joined' && (
         <div className="text-center space-y-4">
           <div className="flex items-center justify-center">
-            <Users className="w-8 h-8 text-blue-400" />
+            <Users className="w-7 h-7 sm:w-8 sm:h-8 text-blue-400 motion-safe:animate-bounce" />
           </div>
           <div className="space-y-2">
-            <p className="text-lg font-semibold text-blue-400">{queueMessage}</p>
-            <p className="text-sm text-muted-foreground">
+            <p className="text-base sm:text-lg font-semibold text-blue-400">{queueMessage}</p>
+            <p className="text-xs sm:text-sm text-muted-foreground">
               We'll match you with another player soon!
             </p>
           </div>
@@ -179,12 +179,12 @@ export const Lobby: React.FC<LobbyProps> = ({ onJoinGame, isConnected = false })
         </div>
       )}
 
-      <div className="bg-muted rounded-lg p-4">
+      <div className="bg-muted rounded-lg p-3 sm:p-4">
         {!isConnected && (
           <p className="text-sm text-yellow-500 mb-2">Connecting to server...</p>
         )}
         <h3 className="font-semibold mb-2">How to Play:</h3>
-        <ul className="text-sm text-muted-foreground space-y-1">
+        <ul className="text-sm sm:text-base text-muted-foreground space-y-1">
           <li>• Click on any empty square to make your move</li>
           <li>• Get three in a row (horizontally, vertically, or diagonally) to win</li>
           <li>• If all squares are filled with no winner, it's a draw</li>
