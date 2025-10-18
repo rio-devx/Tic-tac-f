@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { GameState, Player } from '../types/game';
 import { ArrowLeft, RotateCcw, Trophy } from 'lucide-react';
 import { MoveNotification } from './MoveNotification';
+import { WinCelebration } from './WinCelebration';
 import { Button } from '@/components/ui/button';
 
 interface GameBoardProps {
@@ -9,15 +10,19 @@ interface GameBoardProps {
   player: Player;
   onMakeMove: (position: number) => void;
   onLeaveGame: () => void;
+  onShowWinEffect?: (winner: 'X' | 'O', winnerUsername: string) => void;
 }
 
 export const GameBoard: React.FC<GameBoardProps> = ({
   gameState,
   player,
   onMakeMove,
-  onLeaveGame
+  onLeaveGame,
+  onShowWinEffect
 }) => {
   const [lastMove, setLastMove] = useState<{ position: number; symbol: 'X' | 'O'; playerName: string } | null>(null);
+  const [showWinCelebration, setShowWinCelebration] = useState(false);
+  
   const getPlayerSymbol = (playerId: string): 'X' | 'O' => {
     return gameState.players[0].id === playerId ? 'X' : 'O';
   };
@@ -89,6 +94,26 @@ export const GameBoard: React.FC<GameBoardProps> = ({
     return '';
   };
 
+  // Check if current player won and trigger celebration
+  React.useEffect(() => {
+    if (gameState.status === 'finished' && gameState.winner && gameState.winner !== 'draw') {
+      const mySymbol = getPlayerSymbolForCurrentUser();
+      const isWinner = mySymbol === gameState.winner;
+      
+      if (isWinner) {
+        const winningPlayer = gameState.players.find(p => 
+          getPlayerSymbol(p.id) === gameState.winner
+        );
+        
+        if (winningPlayer) {
+          setShowWinCelebration(true);
+          // Also notify parent component
+          onShowWinEffect?.(gameState.winner, winningPlayer.username);
+        }
+      }
+    }
+  }, [gameState.status, gameState.winner]);
+
   const renderCell = (index: number) => {
     const value = gameState.board[index];
     const canClick = canMakeMove(index);
@@ -154,8 +179,15 @@ export const GameBoard: React.FC<GameBoardProps> = ({
 
   return (
     <div className="space-y-6 animate-in fade-in duration-300">
+      {/* Win Celebration Overlay */}
+      <WinCelebration 
+        isVisible={showWinCelebration}
+        onComplete={() => setShowWinCelebration(false)}
+      />
+
       {/* Move Notification */}
       <MoveNotification moveData={lastMove || undefined} />
+      
       {/* Header */}
       <div className="flex flex-col sm:flex-row gap-3 sm:gap-0 justify-between items-center">
         <Button

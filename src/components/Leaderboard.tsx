@@ -114,7 +114,7 @@ export const Leaderboard: React.FC<LeaderboardProps> = ({ onBack }) => {
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
         <Card className="text-center motion-safe:animate-slide-up">
           <CardContent className="p-3 sm:p-4">
-            <Users className="w-7 h-7 sm:w-8 sm:h-8 mx-auto mb-2 text-blue-400" />
+            <Users className="w-7 h-7 sm:w-8 sm:h-8 mx-auto mb-2  text-blue-400" />
             <p className="text-xl sm:text-2xl font-bold text-blue-400">{leaderboard.length}</p>
             <p className="text-sm text-gray-400">Players</p>
           </CardContent>

@@ -90,6 +90,12 @@ function App() {
       } : null);
     });
 
+    // Listen for win celebration effect
+    socketService.onShowWinEffect((winData) => {
+      console.log('Win effect triggered:', winData);
+      // The celebration will be handled by GameBoard component
+    });
+
     socketService.onOpponentDisconnected(() => {
       alert('Your opponent disconnected. Returning to lobby.');
       setCurrentView('lobby');

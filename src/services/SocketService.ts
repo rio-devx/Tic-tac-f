@@ -121,6 +121,10 @@ export class SocketService {
     this.socket?.on('error', callback);
   }
 
+  public onShowWinEffect(callback: (data: { winner: 'X' | 'O'; winnerUsername: string }) => void): void {
+    this.socket?.on('showWinEffect', callback);
+  }
+
   // Remove event listeners
   public off(event: string, callback?: (...args: any[]) => void): void {
     this.socket?.off(event, callback);
