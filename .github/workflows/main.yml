@@ -1,0 +1,161 @@
+name: CI / CD - MERN (TypeScript)
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  test:
+    name: Test & Lint (Node ${{ matrix.node }})
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node: [18.x, 20.x]
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Use Node.js ${{ matrix.node }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node }}
+          cache: 'npm'
+
+      - name: Install root dependencies
+        run: npm ci
+
+      # Backend (server)
+      - name: Install server deps
+        run: npm ci --prefix server
+
+      - name: Lint server
+        run: npm --prefix server run lint
+        continue-on-error: false
+
+      - name: Test server
+        run: npm --prefix server test
+
+      # Frontend (client)
+      - name: Install client deps
+        run: npm ci --prefix client
+
+      - name: Lint client
+        run: npm --prefix client run lint
+        continue-on-error: false
+
+      - name: Test client
+        run: npm --prefix client test --if-present
+
+  build:
+    name: Build (runs after tests)
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20.x
+          cache: 'npm'
+
+      - name: Install root deps
+        run: npm ci
+
+      - name: Install server deps
+        run: npm ci --prefix server
+
+      - name: Build server (TypeScript -> JS)
+        # assumes server build script compiles TS to dist
+        run: npm --prefix server run build
+
+      - name: Install client deps
+        run: npm ci --prefix client
+
+      - name: Build client (production)
+        # for CRA/Next/other - ensure your package.json has the appropriate build script
+        run: npm --prefix client run build
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: built-artifacts
+          path: |
+            server/dist
+            client/build
+
+  docker:
+    name: Build & Push Docker image (optional)
+    needs: build
+    runs-on: ubuntu-latest
+    if: ${{ secrets.DOCKERHUB_USERNAME && secrets.DOCKERHUB_TOKEN }} # runs only if secrets exist
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v2
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+
+      - name: Login to DockerHub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Build and push
+        uses: docker/build-push-action@v4
+        with:
+          context: .
+          file: ./Dockerfile        # change if your Dockerfile is in ./server/Dockerfile
+          push: true
+          tags: |
+            ${{ secrets.DOCKERHUB_USERNAME }}/my-mern-app:${{ github.sha }}
+            ${{ secrets.DOCKERHUB_USERNAME }}/my-mern-app:latest
+
+  deploy:
+    name: Deploy to server via SSH (optional)
+    needs: docker
+    runs-on: ubuntu-latest
+    if: ${{ secrets.SSH_HOST && secrets.SSH_USER && secrets.SSH_PRIVATE_KEY }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Wait for docker image to be available
+        run: echo "Skipping explicit wait; ensure docker image push succeeded."
+
+      - name: Deploy via SSH (runs a remote deploy script)
+        uses: appleboy/ssh-action@v0.1.7
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          port: ${{ secrets.SSH_PORT || 22 }}
+          script: |
+            set -e
+            # Example commands (customize):
+            # Pull docker image and restart container
+            docker pull ${{ secrets.DOCKERHUB_USERNAME }}/my-mern-app:latest
+            docker stop my-mern-app || true
+            docker rm my-mern-app || true
+            docker run -d --name my-mern-app \
+              -e NODE_ENV=production \
+              -p 80:3000 \
+              ${{ secrets.DOCKERHUB_USERNAME }}/my-mern-app:latest
+
+      - name: Notify deploy success
+        run: echo "Deployed successfully (if SSH commands ran without error)."
+
+# Notes & customization
+# - If you use yarn or pnpm, replace `npm ci` / `npm run` commands accordingly.
+# - Update Dockerfile path if the Dockerfile is in server/.
+# - If you don't want Docker or SSH deploy, remove those jobs.
+# - Add env secrets in repo Settings -> Secrets and variables -> Actions:
+#     DOCKERHUB_USERNAME, DOCKERHUB_TOKEN, SSH_HOST, SSH_USER, SSH_PRIVATE_KEY, SSH_PORT
+# - If using Vercel/Netlify for frontend, prefer their native GitHub integration (skip Docker for client).
